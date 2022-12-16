@@ -360,11 +360,9 @@ class ChromaticityConsistencyLoss(nn.Module):
         super(ChromaticityConsistencyLoss, self).__init__()
 
     def forward(self, input_image, output_image):
-        # Convert images to chromaticity coordinates
         input_chromaticity = input_image[0:3] / (input_image[0] + input_image[1] + input_image[2] + 1e-8)
         output_chromaticity = output_image[0:3] / (output_image[0] + output_image[1] + output_image[2] + 1e-8)
 
-        # Calculate L2 loss between chromaticity coordinates of input and output images
         chromaticity_consistency_loss = torch.mean((input_chromaticity - output_chromaticity) ** 2)
 
         return chromaticity_consistency_loss
@@ -375,6 +373,15 @@ chromaticity_consistency_loss = ChromaticityConsistencyLoss()
 
 # Calculate chromaticity consistency loss
 # loss = chromaticity_consistency_loss(input_image, output_image)
+
+class StructurePreservationLoss(nn.Module):
+    def __init__(self):
+        super(StructurePreservationLoss, self).__init__()
+
+    def forward(self, input_image, output_image):
+        structure_preservation_loss = torch.mean(torch.abs(input_image - output_image))
+
+        return structure_preservation_loss
 
 def get_loss(model, x_0, x_masked, t):
     x_noisy, noise = forward_diffusion_sample(x_0, t, device)
